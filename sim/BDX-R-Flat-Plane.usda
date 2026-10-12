@@ -1,0 +1,1235 @@
+#usda 1.0
+(
+    customLayerData = {
+        dictionary cameraSettings = {
+            dictionary Front = {
+                double3 position = (5, 0, 0)
+                double radius = 5
+            }
+            dictionary Perspective = {
+                double3 position = (3.0523073188103647, -1.3072832730521513, 0.49230721163463415)
+                double3 target = (-0.63416621069574, 2.906794047714846, 1.1718936746459294)
+            }
+            dictionary Right = {
+                double3 position = (0, -5, 0)
+                double radius = 5
+            }
+            dictionary Top = {
+                double3 position = (0, 0, 5)
+                double radius = 5
+            }
+            string boundCamera = "/OmniverseKit_Persp"
+        }
+        dictionary omni_layer = {
+            string authoring_layer = "./BDX-R-Flat-Plane.usda"
+            dictionary locked = {
+            }
+            dictionary muteness = {
+            }
+        }
+        dictionary renderSettings = {
+        }
+    }
+    defaultPrim = "World"
+    endTimeCode = 1000000
+    metersPerUnit = 1
+    startTimeCode = 0
+    timeCodesPerSecond = 60
+    upAxis = "Z"
+)
+
+def Xform "World"
+{
+    def PhysicsScene "PhysicsScene" (
+        prepend apiSchemas = ["NewtonSceneAPI", "PhysxSceneAPI"]
+    )
+    {
+        uint physxScene:timeStepsPerSecond = 200
+    }
+
+    def Xform "GroundPlane" (
+        active = false
+    )
+    {
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Mesh "CollisionMesh"
+        {
+            uniform bool doubleSided = 0
+            int[] faceVertexCounts = [4]
+            int[] faceVertexIndices = [0, 1, 2, 3]
+            normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+            point3f[] points = [(-25, -25, 0), (25, -25, 0), (25, 25, 0), (-25, 25, 0)]
+            color3f[] primvars:displayColor = [(0.5, 0.5, 0.5)]
+            texCoord2f[] primvars:st = [(0, 0), (1, 0), (1, 1), (0, 1)] (
+                interpolation = "varying"
+            )
+        }
+
+        def Plane "CollisionPlane" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            uniform token axis = "Z"
+            uniform token purpose = "guide"
+        }
+    }
+
+    def "URDF" (
+        prepend payload = @../../../../../BDX-R-Project/BDX-R-IsaacLab-Belief/src/BDXR/data/Robots/BDXR/converted/URDF/URDF.usda@
+    )
+    {
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        double3 xformOp:translate = (0, 0, 0.2445)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        over "Geometry"
+        {
+            over "base_link"
+            {
+                string isaac:nameOverride (
+                    displayName = "Name Override"
+                )
+
+                over "Neck"
+                {
+                    over "Head_Pitch_Motor_Support"
+                    {
+                        over "Head_Roll_Connector"
+                        {
+                            over "Head_Roll_Motor"
+                            {
+                                over "Left_Eye_Camera" (
+                                    prepend apiSchemas = ["OmniRtxCameraAutoExposureAPI_1", "OmniRtxCameraExposureAPI_1"]
+                                )
+                                {
+                                    float exposure:fStop = 5
+                                    float exposure:responsivity = 1.1026709
+                                    float exposure:time = 0.02
+                                    bool omni:kit:cameraLock = 1
+                                    custom uniform vector3d omni:kit:centerOfInterest = (0, 0, -0.08817149410402579)
+                                    quatd xformOp:orient = (0.5168799999999998, 0.5219677360568195, -0.48212790885505724, -0.47742792924039157)
+                                    float3 xformOp:scale = (1, 1, 1)
+                                    double3 xformOp:translate = (0.06669999999999987, 0.05766213943691041, 0.0006324935529897768)
+                                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                                }
+                            }
+                        }
+                    }
+                }
+
+                over "Left_Hip_Top_Holder"
+                {
+                    over "Left_Hip_Roll_Connector"
+                    {
+                        over "Left_Hip_Pitch_Motor"
+                        {
+                            over "Left_Lower_Leg"
+                            {
+                                string isaac:nameOverride (
+                                    displayName = "Name Override"
+                                )
+
+                                over "Left_Foot" (
+                                    prepend apiSchemas = ["PhysxContactReportAPI"]
+                                )
+                                {
+                                    string isaac:nameOverride (
+                                        displayName = "Name Override"
+                                    )
+                                    float physxContactReport:threshold = 0
+
+                                    def IsaacContactSensor "Contact_Sensor"
+                                    {
+                                        float4 color = (1, 0, 0, 1)
+                                        bool enabled = 1
+                                        float radius = -1
+                                        float2 threshold = (0, 100000)
+                                        quatd xformOp:orient = (1, 0, 0, 0)
+                                        double3 xformOp:scale = (1, 1, 1)
+                                        double3 xformOp:translate = (0, 0, 0)
+                                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                over "Right_Hip_Top_Holder"
+                {
+                    string isaac:nameOverride (
+                        displayName = "Name Override"
+                    )
+
+                    over "Right_Hip_Roll_Connector"
+                    {
+                        over "Right_Hip_Pitch_Motor"
+                        {
+                            over "Right_Lower_Leg"
+                            {
+                                over "Right_Foot" (
+                                    prepend apiSchemas = ["PhysxContactReportAPI"]
+                                )
+                                {
+                                    string isaac:nameOverride (
+                                        displayName = "Name Override"
+                                    )
+                                    float physxContactReport:threshold = 0
+
+                                    def IsaacContactSensor "Contact_Sensor"
+                                    {
+                                        float4 color = (1, 0, 0, 1)
+                                        bool enabled = 1
+                                        float radius = -1
+                                        float2 threshold = (0, 100000)
+                                        quatd xformOp:orient = (1, 0, 0, 0)
+                                        double3 xformOp:scale = (1, 1, 1)
+                                        double3 xformOp:translate = (0, 0, 0)
+                                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                def IsaacImuSensor "Imu_Sensor"
+                {
+                    int angularVelocityFilterWidth = 1
+                    bool enabled = 1
+                    int linearAccelerationFilterWidth = 1
+                    int orientationFilterWidth = 1
+                    token visibility = "invisible"
+                    quatd xformOp:orient = (1, 0, 0, 0)
+                    double3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+        }
+
+        over "Physics"
+        {
+            over "Neck_Pitch" (
+                instanceable = false
+            )
+            {
+                float drive:angular:physics:damping = 0.018430676
+                float drive:angular:physics:maxForce = 10.9
+                float drive:angular:physics:stiffness = 0.28939304
+                bool[] isaac:actuator (
+                    displayName = "Actuator"
+                )
+                string isaac:NameOverride (
+                    displayName = "Joint Name Override"
+                )
+                token[] isaac:physics:DofOffsetOpOrder (
+                    displayName = "Dof Offset Op Order"
+                )
+                float physxJoint:armature = 0.0142
+                float physxJoint:maxJointVelocity = 2159.9937
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Left_Hip_Yaw"
+            {
+                float drive:angular:physics:damping = 0.0877377
+                float drive:angular:physics:maxForce = 42
+                float drive:angular:physics:stiffness = 1.3780596
+                float physxJoint:armature = 0.06
+                float physxJoint:maxJointVelocity = 1079.9681
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Right_Hip_Yaw"
+            {
+                float drive:angular:physics:damping = 0.0877377
+                float drive:angular:physics:maxForce = 42
+                float drive:angular:physics:stiffness = 1.3780596
+                float physxJoint:armature = 0.06
+                float physxJoint:maxJointVelocity = 1079.9681
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Head_Pitch"
+            {
+                float drive:angular:physics:damping = 0.021553341
+                float drive:angular:physics:maxForce = 3.85
+                float drive:angular:physics:stiffness = 0.45402145
+                float physxJoint:armature = 0.0007
+                float physxJoint:maxJointVelocity = 2578.31
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Left_Hip_Roll"
+            {
+                float drive:angular:physics:damping = 0.0877377
+                float drive:angular:physics:maxForce = 42
+                float drive:angular:physics:stiffness = 1.3780596
+                float physxJoint:armature = 0.06
+                float physxJoint:maxJointVelocity = 1079.9681
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Right_Hip_Roll"
+            {
+                float drive:angular:physics:damping = 0.0877377
+                float drive:angular:physics:maxForce = 42
+                float drive:angular:physics:stiffness = 1.3780596
+                float physxJoint:armature = 0.06
+                float physxJoint:maxJointVelocity = 1079.9681
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Head_Yaw"
+            {
+                float drive:angular:physics:damping = 0.021553341
+                float drive:angular:physics:maxForce = 3.85
+                float drive:angular:physics:stiffness = 0.45402145
+                float physxJoint:armature = 0.0007
+                float physxJoint:maxJointVelocity = 2578.31
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Left_Hip_Pitch"
+            {
+                float drive:angular:physics:damping = 0.0877377
+                float drive:angular:physics:maxForce = 42
+                float drive:angular:physics:stiffness = 1.3780596
+                float physxJoint:armature = 0.06
+                float physxJoint:maxJointVelocity = 1079.9681
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Right_Hip_Pitch"
+            {
+                float drive:angular:physics:damping = 0.0877377
+                float drive:angular:physics:maxForce = 42
+                float drive:angular:physics:stiffness = 1.3780596
+                float physxJoint:armature = 0.06
+                float physxJoint:maxJointVelocity = 1079.9681
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Head_Roll"
+            {
+                float drive:angular:physics:damping = 0.021553341
+                float drive:angular:physics:maxForce = 3.85
+                float drive:angular:physics:stiffness = 0.45402145
+                float physxJoint:armature = 0.0007
+                float physxJoint:maxJointVelocity = 2578.31
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Left_Knee"
+            {
+                float drive:angular:physics:damping = 0.0877377
+                float drive:angular:physics:maxForce = 42
+                float drive:angular:physics:stiffness = 1.3780596
+                float physxJoint:armature = 0.06
+                float physxJoint:maxJointVelocity = 1079.9681
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Right_Knee"
+            {
+                float drive:angular:physics:damping = 0.0877377
+                float drive:angular:physics:maxForce = 42
+                float drive:angular:physics:stiffness = 1.3780596
+                float physxJoint:armature = 0.06
+                float physxJoint:maxJointVelocity = 1079.9681
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Left_Ankle"
+            {
+                float drive:angular:physics:damping = 0.018430676
+                float drive:angular:physics:maxForce = 10.9
+                float drive:angular:physics:stiffness = 0.28939304
+                float physxJoint:armature = 0.0142
+                float physxJoint:maxJointVelocity = 2159.9937
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+
+            over "Right_Ankle"
+            {
+                float drive:angular:physics:damping = 0.018430676
+                float drive:angular:physics:maxForce = 10.9
+                float drive:angular:physics:stiffness = 0.28939304
+                float physxJoint:armature = 0.0142
+                float physxJoint:maxJointVelocity = 2159.9937
+                float state:angular:physics:position = 0
+                float state:angular:physics:velocity = 0
+            }
+        }
+    }
+
+    def OmniGraph "BdxrGraph"
+    {
+        token evaluationMode = "Automatic"
+        token evaluator:type = "push"
+        token fabricCacheBacking = "StageWithoutHistory"
+        int2 fileFormatVersion = (1, 9)
+        token pipelineStage = "pipelineStageOnDemand"
+
+        def OmniGraphNode "OnPhysicsStep" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            token node:type = "isaacsim.core.nodes.OnPhysicsStep"
+            int node:typeVersion = 1
+            custom double outputs:deltaSimulationTime
+            custom double outputs:deltaSystemTime
+            custom uint outputs:step (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            uniform float2 ui:nodegraph:node:pos = (-1114.3839, -59.460262)
+        }
+
+        def OmniGraphNode "ReadSimTime" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom uint64 inputs:referenceTimeDenominator
+            custom int64 inputs:referenceTimeNumerator
+            custom bool inputs:resetOnStop
+            token node:type = "isaacsim.core.nodes.IsaacReadSimulationTime"
+            int node:typeVersion = 1
+            custom double outputs:simulationTime
+            uniform float2 ui:nodegraph:node:pos = (-1235.4366, -400.32095)
+        }
+
+        def OmniGraphNode "PublishClock" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom uint64 inputs:context
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/BdxrGraph/OnPhysicsStep.outputs:step>
+            custom string inputs:nodeNamespace
+            custom string inputs:qosProfile
+            custom uint64 inputs:queueSize
+            custom double inputs:timeStamp
+            prepend double inputs:timeStamp.connect = </World/BdxrGraph/ReadSimTime.outputs:simulationTime>
+            custom string inputs:topicName
+            token node:type = "isaacsim.ros2.bridge.ROS2PublishClock"
+            int node:typeVersion = 1
+            uniform float2 ui:nodegraph:node:pos = (-786.30896, -221.39265)
+        }
+
+        def OmniGraphNode "isaac_read_imu_node" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/BdxrGraph/OnPhysicsStep.outputs:step>
+            custom rel inputs:imuPrim = </World/URDF/Geometry/base_link/Imu_Sensor> (
+                customData = {
+                    dictionary omni = {
+                        dictionary graph = {
+                            string relType = "target"
+                        }
+                    }
+                }
+            )
+            custom bool inputs:readGravity
+            custom bool inputs:useLatestData
+            token node:type = "isaacsim.sensors.physics.IsaacReadIMU"
+            int node:typeVersion = 1
+            custom vector3d outputs:angVel
+            custom uint outputs:execOut (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            custom vector3d outputs:linAcc
+            custom quatd outputs:orientation
+            custom float outputs:sensorTime
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-779.574, -539.6701)
+        }
+
+        def OmniGraphNode "ros2_publish_imu" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom vector3d inputs:angularVelocity
+            prepend vector3d inputs:angularVelocity.connect = </World/BdxrGraph/isaac_read_imu_node.outputs:angVel>
+            custom uint64 inputs:context
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/BdxrGraph/isaac_read_imu_node.outputs:execOut>
+            custom string inputs:frameId
+            custom vector3d inputs:linearAcceleration
+            prepend vector3d inputs:linearAcceleration.connect = </World/BdxrGraph/isaac_read_imu_node.outputs:linAcc>
+            custom string inputs:nodeNamespace
+            custom quatd inputs:orientation
+            prepend quatd inputs:orientation.connect = </World/BdxrGraph/isaac_read_imu_node.outputs:orientation>
+            custom bool inputs:publishAngularVelocity
+            custom bool inputs:publishLinearAcceleration
+            custom bool inputs:publishOrientation
+            custom string inputs:qosProfile
+            custom uint64 inputs:queueSize
+            custom double inputs:timeStamp
+            prepend double inputs:timeStamp.connect = </World/BdxrGraph/ReadSimTime.outputs:simulationTime>
+            custom string inputs:topicName
+            token node:type = "isaacsim.ros2.bridge.ROS2PublishImu"
+            int node:typeVersion = 1
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-223.82262, -535.1029)
+        }
+
+        def OmniGraphNode "ros2_publish_joint_state" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom uint64 inputs:context
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/BdxrGraph/OnPhysicsStep.outputs:step>
+            custom uchar[] inputs:jointDofTypes
+            prepend uchar[] inputs:jointDofTypes.connect = </World/BdxrGraph/isaac_read_joint_state_node.outputs:jointDofTypes>
+            custom double[] inputs:jointEfforts
+            prepend double[] inputs:jointEfforts.connect = </World/BdxrGraph/isaac_read_joint_state_node.outputs:jointEfforts>
+            custom token[] inputs:jointNames
+            delete token[] inputs:jointNames.connect = </World/BdxrGraph/ros2_subscribe_joint_state.outputs:jointNames>
+            prepend token[] inputs:jointNames.connect = </World/BdxrGraph/isaac_read_joint_state_node.outputs:jointNames>
+            custom double[] inputs:jointPositions
+            prepend double[] inputs:jointPositions.connect = </World/BdxrGraph/isaac_read_joint_state_node.outputs:jointPositions>
+            custom double[] inputs:jointVelocities
+            prepend double[] inputs:jointVelocities.connect = </World/BdxrGraph/isaac_read_joint_state_node.outputs:jointVelocities>
+            custom string inputs:nodeNamespace
+            custom string inputs:qosProfile
+            custom uint64 inputs:queueSize
+            custom float inputs:sensorTime
+            custom float inputs:stageMetersPerUnit
+            prepend float inputs:stageMetersPerUnit.connect = </World/BdxrGraph/isaac_read_joint_state_node.outputs:stageMetersPerUnit>
+            custom rel inputs:targetPrim = None (
+                customData = {
+                    dictionary omni = {
+                        dictionary graph = {
+                            string relType = "target"
+                        }
+                    }
+                }
+            )
+            custom double inputs:timeStamp
+            prepend double inputs:timeStamp.connect = </World/BdxrGraph/ReadSimTime.outputs:simulationTime>
+            custom string inputs:topicName
+            token node:type = "isaacsim.ros2.bridge.ROS2PublishJointState"
+            int node:typeVersion = 1
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (757.8139, 44.255722)
+        }
+
+        def OmniGraphNode "ros2_subscribe_joint_state" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom uint64 inputs:context
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/BdxrGraph/OnPhysicsStep.outputs:step>
+            custom string inputs:nodeNamespace
+            custom string inputs:qosProfile
+            custom uint64 inputs:queueSize
+            custom string inputs:topicName
+            token node:type = "isaacsim.ros2.bridge.ROS2SubscribeJointState"
+            int node:typeVersion = 2
+            custom double[] outputs:effortCommand
+            custom uint outputs:execOut (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            custom token[] outputs:jointNames
+            custom double[] outputs:positionCommand
+            custom double outputs:timeStamp
+            custom double[] outputs:velocityCommand
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-819.21423, 38.658264)
+        }
+
+        def OmniGraphNode "articulation_controller" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom double[] inputs:effortCommand
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/BdxrGraph/ros2_subscribe_joint_state.outputs:execOut>
+            custom int[] inputs:jointIndices
+            custom token[] inputs:jointNames
+            prepend token[] inputs:jointNames.connect = </World/BdxrGraph/ros2_subscribe_joint_state.outputs:jointNames>
+            custom double[] inputs:positionCommand
+            prepend double[] inputs:positionCommand.connect = </World/BdxrGraph/ros2_subscribe_joint_state.outputs:positionCommand>
+            custom string inputs:robotPath
+            custom rel inputs:targetPrim = </World/URDF/Geometry/base_link> (
+                customData = {
+                    dictionary omni = {
+                        dictionary graph = {
+                            string relType = "target"
+                        }
+                    }
+                }
+            )
+            custom double[] inputs:velocityCommand
+            token node:type = "isaacsim.core.nodes.IsaacArticulationController"
+            int node:typeVersion = 1
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-262.92215, 117.37465)
+        }
+
+        def OmniGraphNode "isaac_read_joint_state_node" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/BdxrGraph/OnPhysicsStep.outputs:step>
+            custom rel inputs:prim = </World/URDF/Geometry/base_link> (
+                customData = {
+                    dictionary omni = {
+                        dictionary graph = {
+                            string relType = "target"
+                        }
+                    }
+                }
+            )
+            token node:type = "isaacsim.sensors.physics.IsaacReadJointState"
+            int node:typeVersion = 1
+            custom uint outputs:execOut (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            custom uchar[] outputs:jointDofTypes
+            custom double[] outputs:jointEfforts
+            custom token[] outputs:jointNames
+            custom double[] outputs:jointPositions
+            custom double[] outputs:jointVelocities
+            custom float outputs:sensorTime
+            custom float outputs:stageMetersPerUnit
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-825.1602, 372.31992)
+        }
+
+        def OmniGraphNode "isaac_read_contact_sensor_node" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom rel inputs:csPrim = </World/URDF/Geometry/base_link/Left_Hip_Top_Holder/Left_Hip_Roll_Connector/Left_Hip_Pitch_Motor/Left_Lower_Leg/Left_Foot/Contact_Sensor> (
+                customData = {
+                    dictionary omni = {
+                        dictionary graph = {
+                            string relType = "target"
+                        }
+                    }
+                }
+            )
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/BdxrGraph/OnPhysicsStep.outputs:step>
+            custom bool inputs:useLatestData
+            token node:type = "isaacsim.sensors.physics.IsaacReadContactSensor"
+            int node:typeVersion = 1
+            custom uint outputs:execOut (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            custom bool outputs:inContact
+            custom float outputs:sensorTime
+            custom float outputs:value
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-822.632, 708.07556)
+        }
+
+        def OmniGraphNode "isaac_read_contact_sensor_node_01" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom rel inputs:csPrim = </World/URDF/Geometry/base_link/Right_Hip_Top_Holder/Right_Hip_Roll_Connector/Right_Hip_Pitch_Motor/Right_Lower_Leg/Right_Foot/Contact_Sensor> (
+                customData = {
+                    dictionary omni = {
+                        dictionary graph = {
+                            string relType = "target"
+                        }
+                    }
+                }
+            )
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/BdxrGraph/isaac_read_contact_sensor_node.outputs:execOut>
+            custom bool inputs:useLatestData
+            token node:type = "isaacsim.sensors.physics.IsaacReadContactSensor"
+            int node:typeVersion = 1
+            custom uint outputs:execOut (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            custom bool outputs:inContact
+            custom float outputs:sensorTime
+            custom float outputs:value
+            uniform token ui:nodegraph:node:expansionState = "minimized"
+            uniform float2 ui:nodegraph:node:pos = (-510.0004, 714.1449)
+        }
+
+        def OmniGraphNode "make_array" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom int inputs:arraySize = 2
+            custom token inputs:arrayType = "float[]" (
+                allowedTokens = ["auto", "bool[]", "double[]", "float[]", "half[]", "int[]", "int64[]", "token[]", "uchar[]", "uint[]", "uint64[]", "double[2][]", "double[3][]", "double[4][]", "matrixd[2][]", "matrixd[3][]", "matrixd[4][]", "float[2][]", "float[3][]", "float[4][]", "half[2][]", "half[3][]", "half[4][]", "int[2][]", "int[3][]", "int[4][]", "timecode[]", "frame[4][]", "colord[3][]", "colorf[3][]", "colorh[3][]", "colord[4][]", "colorf[4][]", "colorh[4][]", "normald[3][]", "normalf[3][]", "normalh[3][]", "pointd[3][]", "pointf[3][]", "pointh[3][]", "quatd[4][]", "quatf[4][]", "quath[4][]", "texcoordd[2][]", "texcoordf[2][]", "texcoordh[2][]", "texcoordd[3][]", "texcoordf[3][]", "texcoordh[3][]", "vectord[3][]", "vectorf[3][]", "vectorh[3][]"]
+            )
+            custom token inputs:input0
+            delete token inputs:input0.connect = </World/BdxrGraph/isaac_read_contact_sensor_node.outputs:value>
+            prepend token inputs:input0.connect = </World/BdxrGraph/isaac_read_contact_sensor_node.outputs:value>
+            custom token inputs:input1 (
+                customData = {
+                    string ExtendedAttributeType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
+                    dictionary omni = {
+                        dictionary graph = {
+                            string attrType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
+                        }
+                    }
+                }
+            )
+            delete token inputs:input1.connect = </World/BdxrGraph/isaac_read_contact_sensor_node_01.outputs:value>
+            prepend token inputs:input1.connect = </World/BdxrGraph/isaac_read_contact_sensor_node_01.outputs:value>
+            token node:type = "omni.graph.nodes.ConstructArray"
+            int node:typeVersion = 1
+            custom token outputs:array
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-213.86682, 830.1719)
+        }
+
+        def OmniGraphNode "ros2_publisher" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom uint64 inputs:context
+            custom float[] inputs:data
+            prepend float[] inputs:data.connect = </World/BdxrGraph/make_array.outputs:array>
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/BdxrGraph/isaac_read_contact_sensor_node_01.outputs:execOut>
+            custom uint inputs:layout:data_offset
+            custom token[] inputs:layout:dim
+            custom string inputs:messageName = "Float32MultiArray"
+            custom string inputs:messagePackage = "std_msgs"
+            custom string inputs:messageSubfolder
+            custom string inputs:nodeNamespace
+            custom string inputs:qosProfile
+            custom uint64 inputs:queueSize
+            custom string inputs:topicName = "foot_forces"
+            token node:type = "isaacsim.ros2.bridge.ROS2Publisher"
+            int node:typeVersion = 1
+            custom uint outputs:execOut (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (74.7658, 671.3482)
+        }
+    }
+
+    def "warehouse" (
+        prepend payload = @https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.1/Isaac/Environments/Simple_Warehouse/warehouse.usd@
+    )
+    {
+    }
+
+    def OmniGraph "CamGraph"
+    {
+        token evaluationMode = "Automatic"
+        token evaluator:type = "execution"
+        token fabricCacheBacking = "Shared"
+        int2 fileFormatVersion = (1, 9)
+        token pipelineStage = "pipelineStageSimulation"
+
+        def OmniGraphNode "on_playback_tick" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            token node:type = "omni.graph.action.OnPlaybackTick"
+            int node:typeVersion = 2
+            custom double outputs:deltaSeconds
+            custom double outputs:frame
+            custom uint outputs:tick (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            custom double outputs:time
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-1198.9667, 96.80533)
+        }
+
+        def OmniGraphNode "isaac_create_render_product" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom rel inputs:cameraPrim = </World/URDF/Geometry/base_link/Neck/Head_Pitch_Motor_Support/Head_Roll_Connector/Head_Roll_Motor/Left_Eye_Camera> (
+                customData = {
+                    dictionary omni = {
+                        dictionary graph = {
+                            string relType = "target"
+                        }
+                    }
+                }
+            )
+            custom bool inputs:enabled
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/CamGraph/on_playback_tick.outputs:tick>
+            custom uint inputs:height = 480
+            custom rel inputs:renderProductPrim (
+                customData = {
+                    dictionary omni = {
+                        dictionary graph = {
+                            string relType = "target"
+                        }
+                    }
+                }
+            )
+            custom uint inputs:width = 640
+            token node:type = "isaacsim.core.nodes.IsaacCreateRenderProduct"
+            int node:typeVersion = 3
+            custom uint outputs:execOut (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            custom token outputs:renderProductPath
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-841.3415, 83.93229)
+        }
+
+        def OmniGraphNode "ros2_camera_helper" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom uint64 inputs:context
+            custom bool inputs:enabled
+            custom bool inputs:enableSemanticLabels
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/CamGraph/isaac_create_render_product.outputs:execOut>
+            custom string inputs:frameId = "left_eye"
+            custom uint inputs:frameSkipCount
+            custom string inputs:nodeNamespace
+            custom string inputs:qosProfile
+            custom uint64 inputs:queueSize
+            custom token inputs:renderProductPath
+            prepend token inputs:renderProductPath.connect = </World/CamGraph/isaac_create_render_product.outputs:renderProductPath>
+            custom bool inputs:resetSimulationTimeOnStop
+            custom string inputs:semanticLabelsTopicName
+            custom string inputs:srtxCompressionType
+            custom float2 inputs:stereoOffset
+            custom string inputs:topicName = "left_eye/image_raw"
+            custom token inputs:type (
+                allowedTokens = ["rgb", "rgb_h264", "rgb_hevc", "depth", "depth_pcl", "instance_segmentation", "semantic_segmentation", "bbox_2d_tight", "bbox_2d_loose", "bbox_3d"]
+            )
+            custom bool inputs:useSystemTime
+            token node:type = "isaacsim.ros2.bridge.ROS2CameraHelper"
+            int node:typeVersion = 4
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-402.67404, 44.690483)
+        }
+    }
+
+    def OmniGraph "PosGraph"
+    {
+        token evaluationMode = "Automatic"
+        token evaluator:type = "execution"
+        token fabricCacheBacking = "Shared"
+        int2 fileFormatVersion = (1, 9)
+        token pipelineStage = "pipelineStageSimulation"
+
+        def OmniGraphNode "on_playback_tick" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            token node:type = "omni.graph.action.OnPlaybackTick"
+            int node:typeVersion = 2
+            custom double outputs:deltaSeconds
+            custom double outputs:frame
+            custom uint outputs:tick (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            custom double outputs:time
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-1068.1099, 67.478424)
+        }
+
+        def OmniGraphNode "isaac_compute_odometry_node" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom rel inputs:chassisPrim = </World/URDF/Geometry/base_link> (
+                customData = {
+                    dictionary omni = {
+                        dictionary graph = {
+                            string relType = "target"
+                        }
+                    }
+                }
+            )
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/PosGraph/on_playback_tick.outputs:tick>
+            token node:type = "isaacsim.core.nodes.IsaacComputeOdometry"
+            int node:typeVersion = 1
+            custom vector3d outputs:angularAcceleration
+            custom vector3d outputs:angularVelocity
+            custom uint outputs:execOut (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            custom vector3d outputs:globalLinearAcceleration
+            custom vector3d outputs:globalLinearVelocity
+            custom vector3d outputs:linearAcceleration
+            custom vector3d outputs:linearVelocity
+            custom quatd outputs:orientation
+            custom vector3d outputs:position
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-757.305, 70.58551)
+        }
+
+        def OmniGraphNode "ros2_publish_odometry" (
+            prepend apiSchemas = ["NodeGraphNodeAPI"]
+        )
+        {
+            custom vector3d inputs:angularVelocity
+            prepend vector3d inputs:angularVelocity.connect = </World/PosGraph/isaac_compute_odometry_node.outputs:angularVelocity>
+            custom string inputs:chassisFrameId
+            custom uint64 inputs:context
+            custom uint inputs:execIn (
+                customData = {
+                    bool isExecution = 1
+                }
+            )
+            prepend uint inputs:execIn.connect = </World/PosGraph/isaac_compute_odometry_node.outputs:execOut>
+            custom vector3d inputs:linearVelocity
+            delete vector3d inputs:linearVelocity.connect = </World/PosGraph/isaac_compute_odometry_node.outputs:globalLinearVelocity>
+            prepend vector3d inputs:linearVelocity.connect = </World/PosGraph/isaac_compute_odometry_node.outputs:linearVelocity>
+            custom string inputs:nodeNamespace
+            custom string inputs:odomFrameId
+            custom quatd inputs:orientation
+            prepend quatd inputs:orientation.connect = </World/PosGraph/isaac_compute_odometry_node.outputs:orientation>
+            custom vector3d inputs:position
+            prepend vector3d inputs:position.connect = </World/PosGraph/isaac_compute_odometry_node.outputs:position>
+            custom bool inputs:publishRawVelocities
+            custom string inputs:qosProfile
+            custom uint64 inputs:queueSize
+            custom vector3d inputs:robotFront
+            custom double inputs:timeStamp
+            prepend double inputs:timeStamp.connect = </World/PosGraph/on_playback_tick.outputs:time>
+            custom string inputs:topicName
+            token node:type = "isaacsim.ros2.bridge.ROS2PublishOdometry"
+            int node:typeVersion = 1
+            uniform token ui:nodegraph:node:expansionState = "open"
+            uniform float2 ui:nodegraph:node:pos = (-376.0503, 122.01672)
+        }
+    }
+}
+
+def Xform "Environment"
+{
+    quatd xformOp:orient = (1, 0, 0, 0)
+    double3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+    def DistantLight "defaultLight" (
+        prepend apiSchemas = ["ShapingAPI"]
+    )
+    {
+        float inputs:angle = 1
+        float inputs:exposure = 1.5
+        float inputs:intensity = 3000
+        bool inputs:normalize = 1
+        float inputs:shaping:cone:angle = 180
+        float inputs:shaping:cone:softness
+        float inputs:shaping:focus
+        color3f inputs:shaping:focusTint
+        asset inputs:shaping:ies:file
+        custom int omni:rtx:usdluxVersion = 2505
+        quatd xformOp:orient = (0.6532814824381883, 0.2705980500730985, 0.27059805007309845, 0.6532814824381882)
+        double3 xformOp:scale = (1, 1, 1)
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+    }
+}
+
+def "Render" (
+    hide_in_stage_window = true
+    no_delete = true
+)
+{
+    def "OmniverseKit"
+    {
+        def "HydraTextures" (
+            hide_in_stage_window = true
+            no_delete = true
+        )
+        {
+            def RenderProduct "omni_kit_widget_viewport_ViewportTexture_0" (
+                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxSettingsParticleFieldAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1"]
+                hide_in_stage_window = true
+                no_delete = true
+            )
+            {
+                rel camera = </OmniverseKit_Persp>
+                token omni:rtx:ambientOcclusion:denoiserMode = "none"
+                token omni:rtx:background:source:texture:textureMode = "repeatMirrored"
+                token omni:rtx:background:source:type = "domeLight"
+                bool omni:rtx:debug:view:pixelDebug:enableFixedTextPos = 1
+                token omni:rtx:directLighting:sampledLighting:denoisingTechnique = "None"
+                bool omni:rtx:dlss:frameGeneration = 0
+                bool omni:rtx:indirectDiffuse:denoiser:enabled = 0
+                bool omni:rtx:material:db:syncLoads = 1
+                token omni:rtx:post:dlss:execMode = "performance"
+                bool omni:rtx:post:registeredCompositing:invertColorCorrection = 1
+                bool omni:rtx:post:registeredCompositing:invertToneMap = 1
+                bool omni:rtx:pt:adaptiveSampling:filterError = 0
+                uint omni:rtx:pt:adaptiveSampling:fixedSppIterations = 2
+                uint omni:rtx:pt:maxSamplesPerLaunch = 2073600
+                uint omni:rtx:pt:mgpu:maxPixelsPerRegionExponent = 12
+                int omni:rtx:realtime:mgpu:tileCount = 2
+                bool omni:rtx:reflections:denoiser:enabled = 0
+                token omni:rtx:rendermode = "RealTimePathTracing"
+                color3f omni:rtx:rt:ambientLight:color = (0.1, 0.1, 0.1)
+                bool omni:rtx:rt:demoire = 0
+                bool omni:rtx:rt:ecoMode:enabled
+                bool omni:rtx:rt:lightcache:spatialCache:dontResolveConflicts = 1
+                int omni:rtx:rt:sss:samples = 1
+                uint omni:rtx:rtpt:maxVolumeBounces = 15
+                float omni:rtx:rtpt:modulatingRoughnessThreshold = 0.08
+                bool omni:rtx:scene:hydra:materialSyncLoads = 1
+                bool omni:rtx:scene:hydra:mdlMaterialWarmup = 1
+                bool omni:rtx:scene:useViewLightingMode
+                rel orderedVars = </Render/Vars/LdrColor>
+                custom bool overrideClipRange = 0
+                uniform int2 resolution = (1250, 439)
+            }
+
+            def RenderProduct "Replicator" (
+                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxSettingsParticleFieldAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1"]
+                hide_in_stage_window = true
+                no_delete = true
+            )
+            {
+                rel camera = </World/URDF/Geometry/base_link/Neck/Head_Pitch_Motor_Support/Head_Roll_Connector/Head_Roll_Motor/Left_Eye_Camera>
+                custom string ogPostProcessPath = "/Render/OmniverseKit/HydraTextures/Replicator/PostRender"
+                bool omni:rtx:material:db:syncLoads = 1
+                bool omni:rtx:rt:ecoMode:enabled
+                bool omni:rtx:scene:hydra:materialSyncLoads = 1
+                rel orderedVars = [
+                    </Render/Vars/LdrColorSD>,
+                    </Render/Vars/LdrColor>,
+                ]
+                custom bool overrideClipRange = 0
+                uniform int2 resolution = (1280, 720)
+            }
+        }
+    }
+
+    def RenderSettings "OmniverseGlobalRenderSettings" (
+        prepend apiSchemas = ["OmniRtxSettingsGlobalRtAdvancedAPI_1", "OmniRtxSettingsGlobalPtAdvancedAPI_1"]
+        no_delete = true
+    )
+    {
+        rel products = [
+            </Render/OmniverseKit/HydraTextures/omni_kit_widget_viewport_ViewportTexture_0>,
+            </Render/OmniverseKit/HydraTextures/Replicator>,
+        ]
+    }
+
+    def "Vars" (
+        hide_in_stage_window = true
+        no_delete = true
+    )
+    {
+        def RenderVar "LdrColor" (
+            hide_in_stage_window = true
+            no_delete = true
+        )
+        {
+            uniform string sourceName = "LdrColor"
+            uniform token sourceType = "raw"
+        }
+    }
+}
+
+over "OmniverseKit_Persp" (
+    prepend apiSchemas = ["OmniRtxCameraAutoExposureAPI_1", "OmniRtxCameraExposureAPI_1"]
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float2 clippingRange = (0.01, 10000000)
+    float exposure:fStop = 5
+    float exposure:responsivity = 1.1026709
+    float exposure:time = 0.02
+    float focalLength = 18.147562
+    float focusDistance = 400
+    custom uniform vector3d omni:kit:centerOfInterest = (0, 0, -5.6400684845008895)
+    float3 xformOp:rotateXYZ = (96.92053, -1.6220829e-13, 41.179424)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (3.0523073188103647, -1.3072832730521513, 0.49230721163463415)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+}
+
+over "OmniverseKit_Front" (
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float2 clippingRange = (1, 10000000)
+    float horizontalAperture = 50
+    custom uniform vector3d omni:kit:centerOfInterest = (0, 0, -5)
+    token projection = "orthographic"
+    float verticalAperture = 50
+    float3 xformOp:rotateXYZ = (90, -1.2722219e-14, 90)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (5, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+}
+
+over "OmniverseKit_Right" (
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float2 clippingRange = (1, 10000000)
+    float horizontalAperture = 50
+    custom uniform vector3d omni:kit:centerOfInterest = (0, 0, -5)
+    token projection = "orthographic"
+    float verticalAperture = 50
+    float3 xformOp:rotateXYZ = (90, -1.41245e-30, 1.2722219e-14)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (0, -5, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+}
+
+over "OmniverseKit_Top" (
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float2 clippingRange = (1, 10000000)
+    float horizontalAperture = 50
+    custom uniform vector3d omni:kit:centerOfInterest = (0, 0, -5)
+    token projection = "orthographic"
+    float verticalAperture = 50
+    float3 xformOp:rotateXYZ = (-1.2722219e-14, -7.016709e-15, -90)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (0, 0, 5)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+}
+
